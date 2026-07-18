@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Post on Quip</title>
+  <link rel="stylesheet" href="post.css">
+</head>
+
+<body>
+  
+  <header>
+    <h1>Post a Quip</h1>
+  </header>
+  <main>
+    
+    <div class="name">
+    <label for="name" >Name: </label>
+    <input type="text" id="username" placeholder="Enter your name" >
+    </div>
+    
+    <textarea name="quip" id="thoughts" rows="8" cols="40" maxlength="500" placeholder="Share your quip..."></textarea>
+    <label for="length" id="count">Maximum Length: 0/500</label>
+    <button id="quip">Post</button>
+  </main>
+  
+  <script type="module" src="post.js"></script>
+</body>
+
+</html>
