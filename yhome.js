@@ -16,6 +16,14 @@ menuBtn.addEventListener("click", () => {
     }
 });
 
+const aboutMe = document.getElementById("me");
+const meContent = document.getElementById("aboutMe");
+
+aboutMe.addEventListener("click", () => {
+    menu.style.display = "none";
+    meContent.style.display = "block";
+});
+
 // For Likes
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -38,3 +46,4 @@ dislikes.addEventListener("click", () => {
 });
 
 }
+

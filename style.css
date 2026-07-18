@@ -65,6 +65,31 @@ header #search:focus {
 
 /* header ends */
 
+/* About (Starts) */
+
+#aboutMe {
+    display: none;
+}
+
+.about-head {
+  font-size:28px;
+  font-weight:bold;
+  color:#3B82F6;
+  margin: 20px;
+}
+
+#para {
+    margin: 20px;
+    
+}
+
+#para p {
+    font-family: Comic Sans MS;
+    color: lightslategray;
+}
+
+/* About (Ends) */
+
 /* main starts */
 
 main {
