@@ -19,18 +19,13 @@ thoughtInput.addEventListener("input", () => {
   countText.innerHTML = `Quip Length: ${thoughtInput.value.length}/500`;
 });
 
-const now = new Date();
-const year = now.getYear()+1900;
-const month = now.getMonth() + 1;
-const day = now.getDate();
-
 // Modified (Ends)
 
 postBtn.addEventListener("click", async () => {
 
   const username = usernameInput.value.trim();
   const thought = thoughtInput.value.trim();
-  const postTime = (`${day}•${month}•${year}`);
+  const timestamp = serverTimestamp();
 
 
   if (username === "" || thought === "") {
@@ -45,7 +40,7 @@ postBtn.addEventListener("click", async () => {
       thought: thought,
       likes: 0,
       dislikes: 0,
-      timestamp: postTime;
+      timestamp: postTime
     });
 
     alert("Quip posted successfully!");
