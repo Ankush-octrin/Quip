@@ -13,20 +13,14 @@ const thoughtInput = document.getElementById("thoughts");
 const postBtn = document.getElementById("quip");
 const countText = document.getElementById("count");
 
-// Modified (Starts)
-
 thoughtInput.addEventListener("input", () => {
   countText.innerHTML = `Quip Length: ${thoughtInput.value.length}/500`;
 });
-
-// Modified (Ends)
 
 postBtn.addEventListener("click", async () => {
 
   const username = usernameInput.value.trim();
   const thought = thoughtInput.value.trim();
-  const timestamp = serverTimestamp();
-
 
   if (username === "" || thought === "") {
     alert("Please enter your name and a quip.");
@@ -40,7 +34,7 @@ postBtn.addEventListener("click", async () => {
       thought: thought,
       likes: 0,
       dislikes: 0,
-      timestamp: postTime
+      timestamp: serverTimestamp()
     });
 
     alert("Quip posted successfully!");
