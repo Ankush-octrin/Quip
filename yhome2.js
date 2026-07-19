@@ -46,7 +46,7 @@ async function loadQuips() {
           <p class="owner-name">${data.username}</p>
         </a>
 
-        <p class="post-time">Just Now</p>
+        <p class="post-time">${data.timestamp}</p>
 
         <div class="post">
           <p class="thought">${data.thought}</p>
