@@ -27,22 +27,28 @@ aboutMe.addEventListener("click", () => {
 // For Likes
 
 document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(interaction, 8000);
+    setTimeout(interaction, 5000);
 });
 
 
 function interaction() {
 
-const likes = document.querySelector(".like");
-const dislikes = document.querySelector(".dislike");
-likes.addEventListener("click", () => {
-    likes.innerHTML= "❤️";
-    dislikes.innerHTML = "👎 0";
+const likes = document.querySelectorAll(".like");
+const dislikes = document.querySelectorAll(".dislike");
+
+
+likes.forEach((like,index) => {
+    const dislike = dislikes[index];
+    like.addEventListener("click", () => {
+    like.innerHTML= "❤️";
+    dislike.innerHTML = "👎 0";
 });
 
-dislikes.addEventListener("click", () => {
-    likes.innerHTML= "♡";
-    dislikes.innerHTML = "👎 1";
+    dislike.addEventListener("click", () => {
+    like.innerHTML= "♡";
+    dislike.innerHTML = "👎 1";
+});
+
 });
 
 }
