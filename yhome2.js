@@ -43,10 +43,10 @@ async function loadQuips() {
 
         <a class="owner" href="#">
           👤
-          <p class="owner-name">Just Now</p>
+          <p class="owner-name">${data.username}</p>
         </a>
 
-        <p class="post-time">${data.timestamp}</p>
+        <p class="post-time">Just Now</p>
 
         <div class="post">
           <p class="thought">${data.thought}</p>
