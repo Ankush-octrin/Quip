@@ -5,16 +5,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Quip-SignUp</title>
+  <link rel="stylesheet" href="signup.css" type="text/css" media="all" />
 </head>
     
 <body>
-  <header>
+  
+  <main>
+      
+    <header>
     <h1>Sign Up</h1>
   </header>
   
-  <main>
-    <label for="name">UserName: </label>
+      <form method="get" accept-charset="utf-8">
+      <div class="input">
+        <label for="name">User-Name: </label>
+        <input type="text" name="name" id="name" />
+    </div>
+    
+    <div class="input">
+        <label for="email">Email Id: </label>
+        <input type="email" name="email" id="email-id" />
+    </div>
+    
+    <div class="input">
+        <label for="password">Password: </label>
+        <input type="password" id="pwd" />
+    </div>
+    
+    <button type="submit" id="signUp">Sign Up</button>
+    
+    </form>
+
+
   </main>
+  
+      <button id="google">Continue With Google</button>
 </body>
 
 </html>

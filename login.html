@@ -5,21 +5,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QUIP-Login</title>
+  <link rel="stylesheet" href="login.css" type="text/css" media="all" />
 </head>
 
 <body>
+    <section id="main">
+        
   <header>
     <h1 class="head">LogIn</h1>
   </header>
   <form action="login" method="get" accept-charset="utf-8">
     <label for="email">Email: </label>
-    <input type="email" name="email" id="email">
-    <label for="username">User Name: </label>
-    <input type="text" name="username" id="userName">
-    <input type="text" name="password" id="pwd">
+    <input type="email" name="email" required id="email">
+    <label for="password">Password: </label>
+    <input type="text" name="password" required id="pwd">
     <button id="forgot-pwd">Forgot Password</button>
     <button type="submit" id="login">Log In</button>
   </form>
+  
+      </section>
+
+  <button id="google">Continue with Google</button>
+  <a href="signup.html" class="signup-link">
+  <button id="signup">Sign Up</button>
+  </a>
 </body>
 
 </html>

@@ -1,0 +1,125 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Body (Starts) */
+
+
+body {
+  background:#0F172A;
+  color:#F8FAFC;
+  font-family: Inter, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  flex-direction: column;
+  gap: 30px;
+}
+
+
+/* Body (Ends) */
+
+
+/* Header (Starts) */
+
+
+
+header {
+  color: #3B82F6;
+}
+
+header h1 {
+    text-align: center;
+    padding: 0 0 20px 0;
+    font-size: 28px;
+}
+
+
+/* Header (Ends) */
+
+
+
+/* Main (Starts) */
+
+
+main {
+    border-radius: 10px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    margin: 10px;
+}
+
+
+/* Form (Starts) */
+
+
+main form{
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    margin-bottom: 15px;
+    align-items: center;
+    gap: 15px;
+}
+
+main form input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+    background: #1E293B;
+    border: none;
+    border-radius: 10px;
+    margin-top: 5px;
+    color: white;
+}
+
+main form input:focus {
+    outline: none;
+    border: 1px solid #3B82F6;
+}
+
+main form #signUp {
+    background: #3B82F6;
+    color: #FFFFFF;
+    font-size: 16px;
+    padding: 3px;
+    margin-top: 12%;
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+}
+form #signUp:hover {
+    background: #1D4ED8;
+}
+
+/* Form (Ends) */
+
+
+/* Main (Ends) */
+
+
+
+/* Google Button (Starts) */
+
+
+#google {
+    width: 90%;
+    background: white;
+    opacity: 90%;
+    font-size: 20px;
+    color: black;
+    border: none;
+    border-radius: 20px;
+    padding: 5px;
+    font-weight: 500;
+}
+
+#google:hover {
+    opacity: 100%;
+    font-weight: 600;
+}
+
+
+/* Google Button (Ends) */
