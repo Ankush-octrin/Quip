@@ -38,10 +38,18 @@ main {
     margin: 30px;
 }
 
+.secondary-heading {
+    font-weight: 500;
+    margin: 10px;
+    color: lightblue;
+}
+
 ol {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding-left: 15px;
+    color: lightgray;
 }
 
 
