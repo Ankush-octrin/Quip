@@ -53,10 +53,10 @@ main {
 }
 
 
-/* Form (Starts) */
+/* .form (Starts) */
 
 
-main form{
+main .form{
     display: grid;
     grid-template-columns: 120px 1fr;
     margin-bottom: 15px;
@@ -64,7 +64,7 @@ main form{
     gap: 15px;
 }
 
-main form input {
+main .form input {
     width: 100%;
     box-sizing: border-box;
     padding: 5px;
@@ -75,12 +75,12 @@ main form input {
     color: white;
 }
 
-main form input:focus {
+main .form input:focus {
     outline: none;
     border: 1px solid #3B82F6;
 }
 
-main form #signUp {
+main .form #signUp {
     background: #3B82F6;
     color: #FFFFFF;
     font-size: 16px;
@@ -90,11 +90,11 @@ main form #signUp {
     border-radius: 20px;
     font-weight: 600;
 }
-form #signUp:hover {
+.form #signUp:hover {
     background: #1D4ED8;
 }
 
-/* Form (Ends) */
+/* .form (Ends) */
 
 
 /* Main (Ends) */
