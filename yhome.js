@@ -10,7 +10,7 @@ onAuthStateChanged(auth, (user) => {
         alert(`User Detected: ${user.email}`);
     }
     else {
-        window.location.replace("signup.html");
+        window.location.replace("login.html");
     }
 });
 
