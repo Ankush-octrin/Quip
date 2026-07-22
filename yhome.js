@@ -1,18 +1,7 @@
 import { auth } from "./jfirebase.js";
 
-import {
-    onAuthStateChanged, signOut
+import { signOut
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log(`User Detected: ${user.email}`);
-    }
-    else {
-        window.location.replace("login.html");
-    }
-});
 
 document.getElementById("logOut").addEventListener("click", async () => {
     try{

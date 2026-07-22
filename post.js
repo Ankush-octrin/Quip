@@ -1,4 +1,3 @@
-
 import{ db } from "./jfirebase.js";
 
 
@@ -7,6 +6,20 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log(`User Detected: ${user.email}`);
+    }
+    else {
+        window.location.replace("login.html");
+    }
+});
 
 const usernameInput = document.getElementById("username");
 const thoughtInput = document.getElementById("thoughts");
