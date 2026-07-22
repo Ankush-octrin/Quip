@@ -15,7 +15,7 @@ async function createUser(auth, email, password) {
         window.location.replace("index.html");
     }
     catch(error) {
-        output.textContent = error;
+        output.textContent = error.message;
     }
 }
 

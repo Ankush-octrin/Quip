@@ -30,13 +30,13 @@ header .head {
     padding-bottom: 20px;
 }
 
-form {
+.form {
     display: grid;
     grid-template-columns: 120px 1fr;
     gap: 20px;
 }
 
-form input {
+.form input {
     width: 100%;
     background: #1E293B;
     border: none;
@@ -45,12 +45,12 @@ form input {
     border-radius: 10px;
 }
 
-form input:focus {
+.form input:focus {
     outline: none;
     border: 1px solid #3B82F6;
 }
 
-form #forgot-pwd {
+.form #forgot-pwd {
     padding: 3px;
     font-weight: 500;
     border: none;
@@ -58,12 +58,12 @@ form #forgot-pwd {
     opacity: 80%;
 }
 
-form #forgot-pwd:focus {
+.form #forgot-pwd:focus {
     outline: none;
     opacity: 100%;
 }
 
-form #login {
+.form #login {
     background: #3B82F6;
     color: #FFFFFF;
     padding: 3px;
@@ -73,7 +73,7 @@ form #login {
     font-size: 18px;
 }
 
-form #login:hover {
+.form #login:hover {
     background: #1D4ED8;
 }
 
