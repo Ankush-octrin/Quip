@@ -7,7 +7,7 @@ import {
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        alert(`User Detected: ${user.email}`);
+        console.log(`User Detected: ${user.email}`);
     }
     else {
         window.location.replace("login.html");
