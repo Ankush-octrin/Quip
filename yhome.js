@@ -1,3 +1,20 @@
+import { auth } from "./jfirebase.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        alert(`User Detected: ${user.email}`);
+    }
+    else {
+        window.location.replace("signup.html");
+    }
+});
+
+
 const menuBtn = document.getElementById("menuBtn");
 const mainContent = document.getElementById("content");
 const menu = document.getElementById("menu");
