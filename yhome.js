@@ -1,7 +1,7 @@
 import { auth } from "./jfirebase.js";
 
 import {
-    onAuthStateChanged
+    onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 
@@ -14,6 +14,15 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+document.getElementById("logOut").addEventListener("click", async () => {
+    try{
+        await signOut(auth);
+        alert("You have successfully logged out.");
+    }
+    catch(error) {
+        alert(error.message);
+    }
+});
 
 const menuBtn = document.getElementById("menuBtn");
 const mainContent = document.getElementById("content");
