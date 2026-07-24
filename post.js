@@ -7,9 +7,9 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+//import {
+   // onAuthStateChanged
+//} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 
 //onAuthStateChanged(auth, (user) => {
@@ -33,10 +33,14 @@ thoughtInput.addEventListener("input", () => {
 
 postBtn.addEventListener("click", async () => {
 
-  const username = usernameInput.value.trim();
+  let username = usernameInput.value.trim();
   const thought = thoughtInput.value.trim();
 
-  if (username === "" || thought === "") {
+    if (username === "") {
+        username = "Anonymous";
+    }
+    
+  if (thought === "") {
     alert("Please enter your name and a quip.");
     return;
   }
