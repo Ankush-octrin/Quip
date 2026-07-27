@@ -7,20 +7,20 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-//import {
-   // onAuthStateChanged
-//} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 
-//onAuthStateChanged(auth, (user) => {
-//    if (user) {
-//        console.log(`User Detected: ${user.email}`);
-//    }
- //   else {
- //       alert("Kindly login first to post a quip.");
- //       window.location.replace("login.html");
-//    }
-//});
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log(`User Detected: ${user.email}`);
+    }
+    else {
+        alert("Kindly login first to post a quip.");
+        window.location.replace("login.html");
+    }
+});
 
 const usernameInput = document.getElementById("username");
 const thoughtInput = document.getElementById("thoughts");
@@ -41,7 +41,7 @@ postBtn.addEventListener("click", async () => {
     }
     
   if (thought === "") {
-    alert("Please enter your name and a quip.");
+    alert("Please enter a quip.");
     return;
   }
 

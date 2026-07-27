@@ -14,9 +14,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 
-// ====================================
+
 // GLOBAL VARIABLES
-// ====================================
+
 
 const postsDiv = document.getElementById("posts");
 const searchInput = document.getElementById("search");
@@ -26,9 +26,9 @@ let allQuips = [];
 let currentUser = null;
 
 
-// ====================================
+
 // AUTH STATE
-// ====================================
+
 
 onAuthStateChanged(auth, (user) => {
 
@@ -39,9 +39,9 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
-// ====================================
+
 // LIKE A QUIP
-// ====================================
+
 
 async function likeQuip(quipid) {
 
@@ -137,9 +137,9 @@ async function likeQuip(quipid) {
 }
 
 
-// ====================================
+
 // DISLIKE A QUIP
-// ====================================
+
 
 async function dislikeQuip(quipid) {
 
@@ -235,9 +235,88 @@ async function dislikeQuip(quipid) {
 }
 
 
-// ====================================
+// FORMAT TIMESTAMP
+
+function formatTimestamp(timestamp) {
+
+    if (!timestamp) {
+        return "Just now";
+    }
+
+
+    // Firestore Timestamp → JavaScript Date
+
+    const date = timestamp.toDate();
+
+
+    const now = new Date();
+
+    const difference = now - date;
+
+
+    const seconds = Math.floor(
+        difference / 1000
+    );
+
+
+    const minutes = Math.floor(
+        seconds / 60
+    );
+
+
+    const hours = Math.floor(
+        minutes / 60
+    );
+
+
+    const days = Math.floor(
+        hours / 24
+    );
+
+
+    if (seconds < 60) {
+
+        return "Just now";
+
+    }
+
+
+    if (minutes < 60) {
+
+        return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+
+    }
+
+
+    if (hours < 24) {
+
+        return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+
+    }
+
+
+    if (days < 7) {
+
+        return `${days} day${days === 1 ? "" : "s"} ago`;
+
+    }
+
+
+    return date.toLocaleDateString("en-IN", {
+
+        day: "numeric",
+
+        month: "short",
+
+        year: "numeric"
+
+    });
+
+}
+
+
 // LOAD QUIPS
-// ====================================
+
 
 async function loadQuips() {
 
@@ -298,23 +377,25 @@ async function loadQuips() {
             const data = quipDoc.data();
 
 
-            allQuips.push({
+allQuips.push({
 
-                id: quipDoc.id,
+    id: quipDoc.id,
 
-                username: data.username || "",
+    username: data.username || "",
 
-                thought: data.thought || "",
+    thought: data.thought || "",
 
-                likes: data.likes || 0,
+    timestamp: data.timestamp || null,
 
-                dislikes: data.dislikes || 0,
+    likes: data.likes || 0,
 
-                likedBy: data.likedBy || [],
+    dislikes: data.dislikes || 0,
 
-                dislikedBy: data.dislikedBy || []
+    likedBy: data.likedBy || [],
 
-            });
+    dislikedBy: data.dislikedBy || []
+
+});
 
         });
 
@@ -334,9 +415,9 @@ async function loadQuips() {
 }
 
 
-// ====================================
+
 // DISPLAY QUIPS
-// ====================================
+
 
 function displayQuips(quips) {
 
@@ -412,11 +493,11 @@ function displayQuips(quips) {
                 </a>
 
 
-                <p class="post-time">
+            <p class="post-time">
 
-                    Just Now
+                 ${formatTimestamp(quip.timestamp)}
 
-                </p>
+            </p>
 
 
                 <div class="post">
@@ -474,9 +555,9 @@ function displayQuips(quips) {
 }
 
 
-// ====================================
+
 // BUTTON LISTENERS
-// ====================================
+
 
 function addButtonListeners() {
 
@@ -551,9 +632,9 @@ function addButtonListeners() {
 }
 
 
-// ====================================
+
 // SEARCH
-// ====================================
+
 
 searchInput.addEventListener("input", () => {
 
