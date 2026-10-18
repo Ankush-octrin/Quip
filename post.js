@@ -1,10 +1,9 @@
-import{ db, auth } from "./jfirebase.js";
-
+import { db, auth } from "./jfirebase.js";
 
 import {
-  collection,
-  addDoc,
-  serverTimestamp
+    collection,
+    addDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 import {
@@ -12,60 +11,98 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log(`User Detected: ${user.email}`);
-    }
-    else {
-        alert("Kindly login first to post a quip.");
-        window.location.replace("login.html");
-    }
-});
-
 const usernameInput = document.getElementById("username");
 const thoughtInput = document.getElementById("thoughts");
 const postBtn = document.getElementById("quip");
 const countText = document.getElementById("count");
 
-thoughtInput.addEventListener("input", () => {
-  countText.innerHTML = `Quip Length: ${thoughtInput.value.length}/500`;
+let currentUser = null;
+let authReady = false;
+
+
+// AUTHENTICATION
+
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    authReady = true;
+
+    if (!user) {
+        alert("Kindly log in first to post a quip.");
+        window.location.replace("login.html");
+    }
 });
+
+
+// CHARACTER COUNTER
+
+thoughtInput.addEventListener("input", () => {
+    countText.textContent =
+        `Quip Length: ${thoughtInput.value.length}/500`;
+});
+
+
+// POST A QUIP
 
 postBtn.addEventListener("click", async () => {
 
-  let username = usernameInput.value.trim();
-  const thought = thoughtInput.value.trim();
-
-    if (username === "") {
-        username = "Anonymous";
+    if (!authReady) {
+        alert("Please wait while we verify your login.");
+        return;
     }
-    
-  if (thought === "") {
-    alert("Please enter a quip.");
-    return;
-  }
 
-  try {
+    if (!currentUser) {
+        alert("Kindly log in first to post a quip.");
+        window.location.replace("login.html");
+        return;
+    }
 
-    await addDoc(collection(db, "quips"), {
-      username: username,
-      thought: thought,
-      likes: 0,
-      dislikes: 0,
-      timestamp: serverTimestamp()
-    });
+    const username =
+        usernameInput.value.trim() || "Anonymous";
 
-    alert("Quip posted successfully!");
+    const thought = thoughtInput.value.trim();
 
-    usernameInput.value = "";
-    thoughtInput.value = "";
+    if (!thought) {
+        alert("Please enter a quip.");
+        return;
+    }
 
-    window.location.href = "index.html";
+    if (thought.length > 500) {
+        alert("Your quip cannot exceed 500 characters.");
+        return;
+    }
 
-  } catch (error) {
-    console.error(error);
-    alert("Posting failed. Check the browser console.");
-    console.error(error);
-  }
+    postBtn.disabled = true;
+
+    try {
+
+        await addDoc(collection(db, "quips"), {
+            uid: currentUser.uid,
+            username: username,
+            thought: thought,
+            likes: 0,
+            dislikes: 0,
+            likedBy: [],
+            dislikedBy: [],
+            timestamp: serverTimestamp()
+        });
+
+        alert("Quip posted successfully!");
+
+        usernameInput.value = "";
+        thoughtInput.value = "";
+
+        window.location.replace("index.html");
+
+    } catch (error) {
+
+        console.error("Quip posting failed:", error);
+
+        alert("Unable to post your quip. Please try again.");
+
+    } finally {
+
+        postBtn.disabled = false;
+
+    }
 
 });
