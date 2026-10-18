@@ -73,6 +73,7 @@ async function toggleReaction(quipId, selectedReaction) {
             // Clicking the same reaction removes it.
             if (existingReaction === selectedReaction) {
                 transaction.delete(reactionRef);
+                
             }
 
             // Otherwise, create or switch the reaction.
@@ -310,29 +311,47 @@ function displayQuips(quips) {
 // BUTTON LISTENERS
 
 function addButtonListeners() {
-    document.querySelectorAll(".like").forEach((button) => {
-        button.addEventListener("click", async () => {
-            const quipId = button.dataset.quipid;
+document.querySelectorAll(".like, .dislike").forEach((button) => {
+button.addEventListener("click", async () => {
+const quipId = button.dataset.quipid;
+const selectedReaction = button.classList.contains("like")
+? "like"
+: "dislike";
 
-            const success = await toggleReaction(quipId, "like");
+        button.disabled = true;
 
-            if (success) {
-                await loadQuips();
-            }
-        });
+        const quip = allQuips.find((item) => item.id === quipId);
+
+        if (!quip) {
+            button.disabled = false;
+            return;
+        }
+
+        const previousReaction = quip.userReaction;
+
+        // Update the interface immediately.
+        if (previousReaction === selectedReaction) {
+            quip.userReaction = null;
+        } else {
+            quip.userReaction = selectedReaction;
+        }
+
+        displayQuips(allQuips);
+
+        const success = await toggleReaction(quipId, selectedReaction);
+
+        if (!success) {
+            // Restore the previous state if Firestore rejects the action.
+            quip.userReaction = previousReaction;
+            displayQuips(allQuips);
+            return;
+        }
+
+        // Refresh counts and confirm the saved state.
+        await loadQuips();
     });
+});
 
-    document.querySelectorAll(".dislike").forEach((button) => {
-        button.addEventListener("click", async () => {
-            const quipId = button.dataset.quipid;
-
-            const success = await toggleReaction(quipId, "dislike");
-
-            if (success) {
-                await loadQuips();
-            }
-        });
-    });
 }
 
 
