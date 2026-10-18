@@ -310,50 +310,95 @@ function displayQuips(quips) {
 
 // BUTTON LISTENERS
 
+
 function addButtonListeners() {
 document.querySelectorAll(".like, .dislike").forEach((button) => {
 button.addEventListener("click", async () => {
-const quipId = button.dataset.quipid;
-const selectedReaction = button.classList.contains("like")
-? "like"
-: "dislike";
+if (button.disabled) return;
 
-        button.disabled = true;
+        const quipId = button.dataset.quipid;
+        const selectedReaction = button.classList.contains("like")
+            ? "like"
+            : "dislike";
 
         const quip = allQuips.find((item) => item.id === quipId);
+        if (!quip) return;
 
-        if (!quip) {
-            button.disabled = false;
+        if (!currentUser) {
+            alert("Please log in to react to a quip.");
             return;
         }
 
         const previousReaction = quip.userReaction;
 
-        // Update the interface immediately.
-        if (previousReaction === selectedReaction) {
-            quip.userReaction = null;
-        } else {
-            quip.userReaction = selectedReaction;
+        // Calculate the new reaction and counts.
+        const newReaction =
+            previousReaction === selectedReaction
+                ? null
+                : selectedReaction;
+
+        if (previousReaction === "like") quip.likes--;
+        if (previousReaction === "dislike") quip.dislikes--;
+
+        if (newReaction === "like") quip.likes++;
+        if (newReaction === "dislike") quip.dislikes++;
+
+        quip.userReaction = newReaction;
+
+        // Update only this Quip's reaction buttons.
+        const card = button.closest(".post-container");
+        const likeButton = card.querySelector(".like");
+        const dislikeButton = card.querySelector(".dislike");
+
+        function updateButtons() {
+            likeButton.classList.toggle(
+                "liked",
+                quip.userReaction === "like"
+            );
+            likeButton.setAttribute(
+                "aria-pressed",
+                String(quip.userReaction === "like")
+            );
+            likeButton.innerHTML =
+                `${quip.userReaction === "like" ? "❤️" : "♡"} ${quip.likes}`;
+
+            dislikeButton.classList.toggle(
+                "disliked",
+                quip.userReaction === "dislike"
+            );
+            dislikeButton.setAttribute(
+                "aria-pressed",
+                String(quip.userReaction === "dislike")
+            );
+            dislikeButton.innerHTML =
+                `👎 ${quip.dislikes}`;
         }
 
-        displayQuips(allQuips);
+        updateButtons();
+
+        likeButton.disabled = true;
+        dislikeButton.disabled = true;
 
         const success = await toggleReaction(quipId, selectedReaction);
 
         if (!success) {
-            // Restore the previous state if Firestore rejects the action.
+            // Roll back local changes if Firestore rejects the reaction.
+            quip.likes += previousReaction === "like" ? 1 : 0;
+            quip.dislikes += previousReaction === "dislike" ? 1 : 0;
+
+            quip.likes -= newReaction === "like" ? 1 : 0;
+            quip.dislikes -= newReaction === "dislike" ? 1 : 0;
+
             quip.userReaction = previousReaction;
-            displayQuips(allQuips);
-            return;
+            updateButtons();
         }
 
-        // Refresh counts and confirm the saved state.
-        await loadQuips();
+        likeButton.disabled = false;
+        dislikeButton.disabled = false;
     });
 });
 
 }
-
 
 // SEARCH
 
