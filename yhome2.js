@@ -6,7 +6,8 @@ import {
     orderBy,
     getDocs,
     doc,
-    runTransaction
+    runTransaction,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 import {
@@ -14,664 +15,338 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 
-
 // GLOBAL VARIABLES
-
 
 const postsDiv = document.getElementById("posts");
 const searchInput = document.getElementById("search");
+const loading = document.getElementById("loading");
 
 let allQuips = [];
-
 let currentUser = null;
-
 
 
 // AUTH STATE
 
-
 onAuthStateChanged(auth, (user) => {
-
     currentUser = user;
-
     loadQuips();
-
 });
 
 
+// ESCAPE USER CONTENT
 
-// LIKE A QUIP
-
-
-async function likeQuip(quipid) {
-
-    try {
-
-        if (!currentUser) {
-
-            alert("Please log in to like a quip.");
-
-            return false;
-
-        }
-
-
-        const quipRef = doc(db, "quips", quipid);
-
-
-        await runTransaction(db, async (transaction) => {
-
-
-            const quipSnapshot = await transaction.get(quipRef);
-
-
-            if (!quipSnapshot.exists()) {
-
-                throw new Error("This quip no longer exists.");
-
-            }
-
-
-            const data = quipSnapshot.data();
-
-
-            const likedBy = data.likedBy || [];
-
-            const dislikedBy = data.dislikedBy || [];
-
-
-            // Already liked
-            if (likedBy.includes(currentUser.uid)) {
-
-                throw new Error(
-                    "You have already liked this quip."
-                );
-
-            }
-
-
-            const updates = {
-
-                likes: (data.likes || 0) + 1,
-
-                likedBy: [
-                    ...likedBy,
-                    currentUser.uid
-                ]
-
-            };
-
-
-            // Remove previous dislike
-            if (dislikedBy.includes(currentUser.uid)) {
-
-                updates.dislikes = Math.max(
-                    0,
-                    (data.dislikes || 0) - 1
-                );
-
-
-                updates.dislikedBy = dislikedBy.filter(
-                    (uid) => uid !== currentUser.uid
-                );
-
-            }
-
-
-            transaction.update(quipRef, updates);
-
-        });
-
-
-        return true;
-
-    }
-    catch(error) {
-
-        alert(error.message);
-
-        return false;
-
-    }
-
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[char]);
 }
 
 
+// LIKE / DISLIKE TOGGLE
 
-// DISLIKE A QUIP
-
-
-async function dislikeQuip(quipid) {
+async function toggleReaction(quipId, selectedReaction) {
+    if (!currentUser) {
+        alert("Please log in to react to a quip.");
+        return false;
+    }
 
     try {
-
-        if (!currentUser) {
-
-            alert("Please log in to dislike a quip.");
-
-            return false;
-
-        }
-
-
-        const quipRef = doc(db, "quips", quipid);
-
+        const reactionRef = doc(
+            db,
+            "quips",
+            quipId,
+            "interactions",
+            currentUser.uid
+        );
 
         await runTransaction(db, async (transaction) => {
+            const reactionSnapshot = await transaction.get(reactionRef);
 
+            const existingReaction = reactionSnapshot.exists()
+                ? reactionSnapshot.data().reaction
+                : null;
 
-            const quipSnapshot = await transaction.get(quipRef);
-
-
-            if (!quipSnapshot.exists()) {
-
-                throw new Error("This quip no longer exists.");
-
+            // Clicking the same reaction removes it.
+            if (existingReaction === selectedReaction) {
+                transaction.delete(reactionRef);
             }
 
-
-            const data = quipSnapshot.data();
-
-
-            const likedBy = data.likedBy || [];
-
-            const dislikedBy = data.dislikedBy || [];
-
-
-            // Already disliked
-            if (dislikedBy.includes(currentUser.uid)) {
-
-                throw new Error(
-                    "You have already disliked this quip."
-                );
-
+            // Otherwise, create or switch the reaction.
+            else {
+                transaction.set(reactionRef, {
+                    reaction: selectedReaction,
+                    timestamp: serverTimestamp()
+                });
             }
-
-
-            const updates = {
-
-                dislikes: (data.dislikes || 0) + 1,
-
-                dislikedBy: [
-                    ...dislikedBy,
-                    currentUser.uid
-                ]
-
-            };
-
-
-            // Remove previous like
-            if (likedBy.includes(currentUser.uid)) {
-
-                updates.likes = Math.max(
-                    0,
-                    (data.likes || 0) - 1
-                );
-
-
-                updates.likedBy = likedBy.filter(
-                    (uid) => uid !== currentUser.uid
-                );
-
-            }
-
-
-            transaction.update(quipRef, updates);
-
         });
-
 
         return true;
 
-    }
-    catch(error) {
+    } catch (error) {
+        console.error("Reaction failed:", error);
 
-        alert(error.message);
+        alert(
+            error.code === "permission-denied"
+                ? "Permission denied. Check your Firestore Security Rules."
+                : "Could not update your reaction. Please try again."
+        );
 
         return false;
-
     }
-
 }
 
 
 // FORMAT TIMESTAMP
 
 function formatTimestamp(timestamp) {
-
     if (!timestamp) {
         return "Just now";
     }
 
-
-    // Firestore Timestamp → JavaScript Date
-
     const date = timestamp.toDate();
-
-
     const now = new Date();
 
-    const difference = now - date;
-
-
-    const seconds = Math.floor(
-        difference / 1000
-    );
-
-
-    const minutes = Math.floor(
-        seconds / 60
-    );
-
-
-    const hours = Math.floor(
-        minutes / 60
-    );
-
-
-    const days = Math.floor(
-        hours / 24
-    );
-
+    const seconds = Math.floor((now - date) / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
 
     if (seconds < 60) {
-
         return "Just now";
-
     }
-
 
     if (minutes < 60) {
-
         return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-
     }
-
 
     if (hours < 24) {
-
         return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-
     }
-
 
     if (days < 7) {
-
         return `${days} day${days === 1 ? "" : "s"} ago`;
-
     }
 
-
     return date.toLocaleDateString("en-IN", {
-
         day: "numeric",
-
         month: "short",
-
         year: "numeric"
-
     });
-
 }
 
 
-// LOAD QUIPS
-
+// LOAD QUIPS AND REACTIONS
 
 async function loadQuips() {
-
     try {
-
+        loading.style.display = "block";
         postsDiv.innerHTML = "";
 
-
-        const q = query(
-
+        const quipsQuery = query(
             collection(db, "quips"),
-
             orderBy("timestamp", "desc")
-
         );
 
+        const snapshot = await getDocs(quipsQuery);
 
-        const snapshot = await getDocs(q);
-
-
-        const head = document.getElementById("loading");
-
-
-        // No quips
         if (snapshot.empty) {
+            allQuips = [];
 
-            head.style.display = "none";
-
+            loading.style.display = "none";
 
             postsDiv.innerHTML = `
-
                 <div class="post-container">
-
                     <p class="thought" style="text-align:center;">
-
-                        No posts yet <br>
-
+                        No posts yet.<br>
                         Be the first to post.
-
                     </p>
-
                 </div>
-
             `;
 
-
             return;
-
         }
 
+        // Fetch reactions for each quip.
+        allQuips = await Promise.all(
+            snapshot.docs.map(async (quipDoc) => {
+                const data = quipDoc.data();
 
-        allQuips = [];
+                const interactionsRef = collection(
+                    db,
+                    "quips",
+                    quipDoc.id,
+                    "interactions"
+                );
 
+                const interactionsSnapshot =
+                    await getDocs(interactionsRef);
 
-        snapshot.forEach((quipDoc) => {
+                let likes = 0;
+                let dislikes = 0;
+                let userReaction = null;
 
+                interactionsSnapshot.forEach((reactionDoc) => {
+                    const reactionData = reactionDoc.data();
 
-            const data = quipDoc.data();
+                    if (reactionData.reaction === "like") {
+                        likes++;
+                    } else if (reactionData.reaction === "dislike") {
+                        dislikes++;
+                    }
 
+                    if (
+                        currentUser &&
+                        reactionDoc.id === currentUser.uid
+                    ) {
+                        userReaction = reactionData.reaction;
+                    }
+                });
 
-allQuips.push({
+                return {
+                    id: quipDoc.id,
+                    username: data.username || "Anonymous",
+                    thought: data.thought || "",
+                    timestamp: data.timestamp || null,
+                    likes,
+                    dislikes,
+                    userReaction
+                };
+            })
+        );
 
-    id: quipDoc.id,
-
-    username: data.username || "",
-
-    thought: data.thought || "",
-
-    timestamp: data.timestamp || null,
-
-    likes: data.likes || 0,
-
-    dislikes: data.dislikes || 0,
-
-    likedBy: data.likedBy || [],
-
-    dislikedBy: data.dislikedBy || []
-
-});
-
-        });
-
-
-        head.style.display = "none";
-
+        loading.style.display = "none";
 
         displayQuips(allQuips);
 
+    } catch (error) {
+        console.error("Error loading quips:", error);
+
+        loading.style.display = "none";
+
+        postsDiv.innerHTML = `
+            <div class="post-container">
+                <p class="thought">
+                    Failed to load quips. Please refresh the page.
+                </p>
+            </div>
+        `;
     }
-    catch(error) {
-
-        alert(error.message);
-
-    }
-
 }
-
 
 
 // DISPLAY QUIPS
 
-
 function displayQuips(quips) {
-
-
     postsDiv.innerHTML = "";
 
-
-    // No results
     if (quips.length === 0) {
-
         postsDiv.innerHTML = `
-
             <div class="post-container">
-
                 <p class="thought" style="text-align:center;">
-
                     No quips found.
-
                 </p>
-
             </div>
-
         `;
-
 
         return;
-
     }
 
-
     quips.forEach((quip) => {
+        const userLiked = quip.userReaction === "like";
+        const userDisliked = quip.userReaction === "dislike";
 
+        const heartIcon = userLiked ? "❤️" : "♡";
 
-        // Check whether current user liked this quip
-        const userLiked = currentUser &&
+        const postElement = document.createElement("div");
 
-            quip.likedBy.includes(
-                currentUser.uid
-            );
+        postElement.className = "post-container";
 
-
-        // Check whether current user disliked this quip
-        const userDisliked = currentUser &&
-
-            quip.dislikedBy.includes(
-                currentUser.uid
-            );
-
-
-        // Heart icon
-        const heartIcon = userLiked
-
-            ? "❤️"
-
-            : "♡";
-
-
-        postsDiv.innerHTML += `
-
-            <div class="post-container">
-
-
-                <a class="owner" href="#">
-
-                    👤
-
-                    <p class="owner-name">
-
-                        ${quip.username}
-
-                    </p>
-
-                </a>
-
+        postElement.innerHTML = `
+            <a class="owner" href="#">
+                👤
+                <p class="owner-name">
+                    ${escapeHTML(quip.username)}
+                </p>
+            </a>
 
             <p class="post-time">
-
-                 ${formatTimestamp(quip.timestamp)}
-
+                ${escapeHTML(formatTimestamp(quip.timestamp))}
             </p>
 
-
-                <div class="post">
-
-                    <p class="thought">
-
-                        ${quip.thought}
-
-                    </p>
-
-                </div>
-
-
-                <div class="interact">
-
-
-                    <button
-
-                        class="like ${userLiked ? "liked" : ""}"
-
-                        data-quipid="${quip.id}"
-
-                        ${userLiked ? "disabled" : ""}>
-
-                        ${heartIcon} ${quip.likes}
-
-                    </button>
-
-
-                    <button
-
-                        class="dislike ${userDisliked ? "disliked" : ""}"
-
-                        data-quipid="${quip.id}"
-
-                        ${userDisliked ? "disabled" : ""}>
-
-                        👎 ${quip.dislikes}
-
-                    </button>
-
-
-                </div>
-
-
+            <div class="post">
+                <p class="thought">
+                    ${escapeHTML(quip.thought)}
+                </p>
             </div>
 
+            <div class="interact">
+                <button
+                    class="like ${userLiked ? "liked" : ""}"
+                    data-quipid="${quip.id}"
+                    aria-pressed="${userLiked}">
+                    ${heartIcon} ${quip.likes}
+                </button>
+
+                <button
+                    class="dislike ${userDisliked ? "disliked" : ""}"
+                    data-quipid="${quip.id}"
+                    aria-pressed="${userDisliked}">
+                    👎 ${quip.dislikes}
+                </button>
+            </div>
         `;
 
+        postsDiv.appendChild(postElement);
     });
 
-
     addButtonListeners();
-
 }
-
 
 
 // BUTTON LISTENERS
 
-
 function addButtonListeners() {
+    document.querySelectorAll(".like").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const quipId = button.dataset.quipid;
 
-
-    const likeBtns = document.querySelectorAll(".like");
-
-
-    likeBtns.forEach((likeBtn) => {
-
-
-        likeBtn.addEventListener("click", async () => {
-
-
-            const quipid = likeBtn.dataset.quipid;
-
-
-            likeBtn.disabled = true;
-
-
-            const success = await likeQuip(quipid);
-
+            const success = await toggleReaction(quipId, "like");
 
             if (success) {
-
                 await loadQuips();
-
             }
-            else {
-
-                likeBtn.disabled = false;
-
-            }
-
         });
-
     });
 
+    document.querySelectorAll(".dislike").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const quipId = button.dataset.quipid;
 
-    const dislikeBtns = document.querySelectorAll(".dislike");
-
-
-    dislikeBtns.forEach((dislikeBtn) => {
-
-
-        dislikeBtn.addEventListener("click", async () => {
-
-
-            const quipid = dislikeBtn.dataset.quipid;
-
-
-            dislikeBtn.disabled = true;
-
-
-            const success = await dislikeQuip(quipid);
-
+            const success = await toggleReaction(quipId, "dislike");
 
             if (success) {
-
                 await loadQuips();
-
             }
-            else {
-
-                dislikeBtn.disabled = false;
-
-            }
-
         });
-
     });
-
 }
-
 
 
 // SEARCH
 
-
 searchInput.addEventListener("input", () => {
-
-
-    const searchText = searchInput.value
-
-        .toLowerCase()
-
-        .trim();
-
+    const searchText = searchInput.value.toLowerCase().trim();
 
     const filteredQuips = allQuips.filter((quip) => {
-
-
-        const thought = quip.thought
-
-            .toLowerCase();
-
-
-        const username = quip.username
-
-            .toLowerCase();
-
-
         return (
-
-            thought.includes(searchText)
-
-            ||
-
-            username.includes(searchText)
-
+            quip.thought.toLowerCase().includes(searchText) ||
+            quip.username.toLowerCase().includes(searchText)
         );
-
     });
 
-
     displayQuips(filteredQuips);
-
 });
